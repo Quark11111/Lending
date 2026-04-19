@@ -2,10 +2,12 @@ import { useState } from 'react'
 import './App.css'
 import Hero from './components/Hero'
 import Feature from './components/Feature'
+import Footer from './components/Footer'
 
 const featureData = [{id: 1, title: 'Fast', text: 'All flying'}, {id: 2, title: 'Reliably', text: 'Git with ctrl'}];
 
 function App() {
+  const [email, setEmail] = useState('')
 
   return (
     <>
@@ -14,6 +16,12 @@ function App() {
         <div className='feature-container'>
         {featureData.map(item => <Feature title={item.title} text={item.text} key={item.id} />)}
         </div>
+        <section className='follow'>
+          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <p>Your input: {email}</p>
+          {email.length > 0 && email.length < 5 && <p style={{ color: 'red'}}>Few sumbols</p>}
+        </section>
+      <Footer />
       </div>
     </>
   )
