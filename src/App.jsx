@@ -8,20 +8,33 @@ import { useEffect } from 'react'
 const featureData = [{id: 1, title: 'Fast', text: 'All flying'}, {id: 2, title: 'Reliably', text: 'Git with ctrl'}];
 
 function App() {
-  const [email, setEmail] = useState(localStorage.getItem('myEmail') || '');
+  const [subscribers, setSubscribers] = useState(JSON.parse(localStorage.getItem('subList')) || [] );
+  const [email, setEmail] = useState(localStorage.getItem('myEmail') || ''); 
 
   useEffect(() => {
     localStorage.setItem('myEmail', email);
   }, [email]);
 
-  const handleSubscride = () => {
+  useEffect(() => {
+    localStorage.setItem('subList', JSON.stringify(subscribers));
+  }, [subscribers]);
+
+  const handleSubscribe = () => {
     alert(`Sucrisbilly! We get new in: ${email}`);
 
     setEmail('');
 
+    setSubscribers([...subscribers, email]);
+
     localStorage.removeItem('myEmail');
   };
     
+
+  const deletedSubscriber = (indexToDelete) => {
+    const updateList = subscribers.filter((_, index) => index !== indexToDelete)
+
+    setSubscribers(updateList);
+  };
 
   return (
     <>
@@ -32,9 +45,16 @@ function App() {
         </div>
         <section className='follow'>
           <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-          <button onClick={handleSubscride}>Subscride</button>
+          <button onClick={handleSubscribe}>Subscride</button>
           <p>Your input: {email}</p>
           {email.length > 0 && email.length < 5 && <p style={{ color: 'red'}}>Few sumbols</p>}
+          <ul>
+            {subscribers.map((email, index) => (
+              <li key={index}>{email}
+              <button onClick={() => deletedSubscriber(index)}>Delete</button>
+              </li>
+            ))}
+          </ul>
         </section>
       <Footer />
       </div>
