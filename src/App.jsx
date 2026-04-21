@@ -4,12 +4,23 @@ import Hero from './components/Hero'
 import Feature from './components/Feature'
 import Footer from './components/Footer'
 import { useEffect } from 'react'
+import UserCard from './components/UserCard'
 
 const featureData = [{id: 1, title: 'Fast', text: 'All flying'}, {id: 2, title: 'Reliably', text: 'Git with ctrl'}];
 
 function App() {
   const [subscribers, setSubscribers] = useState(JSON.parse(localStorage.getItem('subList')) || [] );
   const [email, setEmail] = useState(localStorage.getItem('myEmail') || ''); 
+  const [users, setUsers] = useState([]);
+
+  useEffect(() => {
+    fetch('https://randomuser.me/api/')
+    .then(response => response.json())
+    .then(data => {
+      setUsers(data.results);
+    })
+    .catch(error => console.error('Error: ', error))
+  }, []);
 
   useEffect(() => {
     localStorage.setItem('myEmail', email);
@@ -53,6 +64,13 @@ function App() {
               <li key={index}>{email}
               <button onClick={() => deletedSubscriber(index)}>Delete</button>
               </li>
+            ))}
+          </ul>
+        </section>
+        <section>
+          <ul>
+            {users.map((user, index) => (
+              <UserCard key={index} user={user}/>
             ))}
           </ul>
         </section>
