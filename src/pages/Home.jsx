@@ -4,6 +4,7 @@ import Feature from '../components/Feature'
 import Footer from '../components/Footer'
 import { useEffect } from 'react'
 import UserCard from '../components/UserCard'
+import { p } from 'framer-motion/client'
 
 const featureData = [{id: 1, title: 'Fast', text: 'All flying'}, {id: 2, title: 'Reliably', text: 'Git with ctrl'}];
 
@@ -11,20 +12,32 @@ const Home = () => {
     const [subscribers, setSubscribers] = useState(JSON.parse(localStorage.getItem('subList')) || [] );
       const [email, setEmail] = useState(localStorage.getItem('myEmail') || ''); 
       const [users, setUsers] = useState([]);
+      const [isLoading, setIsLoading] = useState(true);
+      const [error, setError] = useState(null);
     
       useEffect(() => {
+        setIsLoading(true)
+        setError(null);
+
+
         fetch('https://randomuser.me/api/')
-        .then(response => response.json())
+        .then(response => { 
+          if (!response.ok) throw new Error('Dont users');
+          return response.json()})
         .then(data => {
           setUsers(data.results);
+          setIsLoading(false);
         })
-        .catch(error => console.error('Error: ', error))
+        .catch(error => {
+          setError(error.message)
+          setIsLoading(false)
+          console.error('Error: ', error)}) 
       }, []);
     
       useEffect(() => {
         localStorage.setItem('myEmail', email);
       }, [email]);
-    
+
       useEffect(() => {
         localStorage.setItem('subList', JSON.stringify(subscribers));
       }, [subscribers]);
@@ -66,11 +79,16 @@ const Home = () => {
           </ul>
         </section>
         <section>
+          {error && <p>{error}</p>}
+          {isLoading ? (
+            <p>Loading...</p>
+          ): (
           <ul>
             {users.map((user, index) => (
               <UserCard key={index} user={user}/>
             ))}
           </ul>
+          )}
         </section>
       <Footer />
       </div>
