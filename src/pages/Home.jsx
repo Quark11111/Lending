@@ -4,7 +4,6 @@ import Feature from '../components/Feature'
 import Footer from '../components/Footer'
 import { useEffect } from 'react'
 import UserCard from '../components/UserCard'
-import { p } from 'framer-motion/client'
 
 const featureData = [{id: 1, title: 'Fast', text: 'All flying'}, {id: 2, title: 'Reliably', text: 'Git with ctrl'}];
 
@@ -42,14 +41,27 @@ const Home = () => {
         localStorage.setItem('subList', JSON.stringify(subscribers));
       }, [subscribers]);
     
-      const handleSubscribe = () => {
-        alert(`Sucrisbilly! We get new in: ${email}`);
-    
-        setEmail('');
-    
-        setSubscribers([...subscribers, email]);
-    
-        localStorage.removeItem('myEmail');
+      const handleSubscribe = async (e) => {
+        if (e) e.preventDefault();
+        try {
+          const response = await fetch('http://localhost:5000/api/subscribe', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email: email }),
+          })
+          const data = await response.json()
+
+          if (response.ok) {
+            alert(data.message);
+            setSubscribers(data.allSubscribers);
+            setEmail('');
+          }
+        } catch (error) {
+          console.error('Error for input', error);
+          alert('Server not :(')
+        }
       };
         
     
@@ -67,12 +79,14 @@ const Home = () => {
         </div>
         <section className='follow'>
           <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-          <button onClick={handleSubscribe}>Subscride</button>
+          <button onClick={(e) => handleSubscribe(e)}>Subscride</button>
           <p>Your input: {email}</p>
           {email.length > 0 && email.length < 5 && <p style={{ color: 'red'}}>Few sumbols</p>}
           <ul>
-            {subscribers.map((email, index) => (
-              <li key={index}>{email}
+            {subscribers.map((sub, index) => (
+              <li key={sub._id || index}>{email}
+
+              {typeof sub === 'object' ? sub.email : sub}
               <button onClick={() => deletedSubscriber(index)}>Delete</button>
               </li>
             ))}
