@@ -40,6 +40,27 @@ const Home = () => {
       useEffect(() => {
         localStorage.setItem('subList', JSON.stringify(subscribers));
       }, [subscribers]);
+
+      useEffect(() => {
+        fetch('https://localhost:5000/api/subscribers')
+          .then(res => res.json())
+          .then(data => setSubscribers(data))
+          .catch(err => console.log('Error in loading:', err));
+      }, []);
+
+      const deletedSubscriber = async (id) => {
+        try {
+          const response = await fetch(`http://localhost:5000/api/subscribe/${id}`, {
+            method: 'Delete',
+          });
+
+          if (response.ok) {
+            setSubscribers(subscribers.filter(sub => sub._id !== id));
+          }
+        } catch (error) {
+          console.log('Dont cant delete: ', error);
+        }
+      };
     
       const handleSubscribe = async (e) => {
         if (e) e.preventDefault();
@@ -65,12 +86,6 @@ const Home = () => {
       };
         
     
-      const deletedSubscriber = (indexToDelete) => {
-        const updateList = subscribers.filter((_, index) => index !== indexToDelete)
-    
-        setSubscribers(updateList);
-      };
-
       return (
         <div className='App'>
         <Hero title="Hi, Git!" text="We did it" buttonText="More" />
@@ -87,7 +102,7 @@ const Home = () => {
               <li key={sub._id || index}>{email}
 
               {typeof sub === 'object' ? sub.email : sub}
-              <button onClick={() => deletedSubscriber(index)}>Delete</button>
+              <button onClick={() => deletedSubscriber(sub._id)}>Delete</button>
               </li>
             ))}
           </ul>
